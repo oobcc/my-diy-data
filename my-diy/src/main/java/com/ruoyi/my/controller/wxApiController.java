@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/my/public")
-public class wxApi {
+public class wxApiController {
 
 
     @Autowired
@@ -29,6 +29,7 @@ public class wxApi {
     @SaIgnore
     @PostMapping("login")
     public R<WxMaJscode2SessionResult> login(@RequestBody String code) {
+
         return wxService.login(code);
     }
 
