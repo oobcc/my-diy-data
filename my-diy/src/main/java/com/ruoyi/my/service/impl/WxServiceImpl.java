@@ -3,23 +3,21 @@ package com.ruoyi.my.service.impl;
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.util.WxMaConfigHolder;
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.my.domain.WxUser;
+import com.ruoyi.my.domain.vo.LoginVo;
 import com.ruoyi.my.mapper.WxUserMapper;
-import com.ruoyi.my.service.IWxUserService;
 import com.ruoyi.my.service.WxService;
 import com.xxl.job.admin.controller.JobInfoController;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import lombok.Data;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -33,7 +31,7 @@ public class WxServiceImpl implements WxService {
     @Autowired
     private WxUserMapper wxUserMapper;
 
-    public R<WxMaJscode2SessionResult> login(String code) {
+    public R<LoginVo> login(String code) {
         try {
             WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(code);
             logger.debug(session.getSessionKey());
@@ -43,24 +41,25 @@ public class WxServiceImpl implements WxService {
                 .eq(WxUser::getOpenId, session.getOpenid()));
             if (wxUser == null) {
                 String prefix = "用户";
-                Integer suffix = 5000 + (int) (Math.random() * 1000);
+                // TODO 随机不合理 需要优化
+                Integer suffix = 5000 + (int) (Math.random() * 10000);
                 List<WxUser> wxUsers = wxUserMapper.selectList(new QueryWrapper<WxUser>()
                     .lambda().eq(WxUser::getNickName,
                         String.format("%s%s", prefix, suffix)));
-                if (wxUsers.size() > 0) {
-
+                // 判断用户名是非唯一，唯一就重新随机一条
+                while (wxUsers.size() != 0) {
+                    suffix = 5000 + (int) (Math.random() * 1000);
+                    wxUsers = wxUserMapper.selectList(new QueryWrapper<WxUser>()
+                        .lambda().eq(WxUser::getNickName,
+                            String.format("%s%s", prefix, suffix)));
                 }
-
-
-                wxUser = WxUser
-                    .builder()
-                    .openId(Long.parseLong(session.getOpenid()))
-                    .build();
-
-
+                // 设置openid和用户名
+                wxUser = WxUser.builder().openId(Long.parseLong(session.getOpenid()))
+                    .nickName(String.format("%s%s", prefix, suffix)).build();
+                wxUserMapper.insert(wxUser);
             }
-
-            return R.ok(session);
+            StpUtil.login(wxUser.getUserId());
+            return R.ok(new LoginVo(StpUtil.getTokenName(), StpUtil.getTokenValue()));
         } catch (WxErrorException e) {
             log.error(e.getMessage(), e);
             return R.fail(e.toString());
