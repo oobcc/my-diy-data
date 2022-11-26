@@ -2,6 +2,7 @@ package com.ruoyi.my.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.my.domain.dto.LoginDto;
 import com.ruoyi.my.domain.vo.LoginVo;
 import com.ruoyi.my.service.WxService;
 import lombok.Data;
@@ -31,13 +32,7 @@ public class wxApiController {
      */
     @SaIgnore
     @PostMapping("login")
-    public R<LoginVo> login(@RequestBody String code) {
-        return wxService.login(code);
-    }
-
-    @Data
-    static class Test {
-
-        private String code;
+    public R<LoginVo> login(@RequestBody LoginDto code) {
+        return wxService.login(code.getCode());
     }
 }

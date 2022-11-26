@@ -33,7 +33,7 @@ public class WxUser extends BaseEntity {
     /**
      * 用户openid
      */
-    private Long openId;
+    private String openId;
     /**
      * 用户昵称
      */
@@ -50,5 +50,10 @@ public class WxUser extends BaseEntity {
      * 是否更新过用户信息
      */
     private String isInit;
+
+    /**
+     * 用户类型
+     */
+    private String userType;
 
 }

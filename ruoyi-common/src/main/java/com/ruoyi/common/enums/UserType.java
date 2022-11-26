@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 设备类型
- * 针对多套 用户体系
+ * 设备类型 针对多套 用户体系
  *
  * @author Lion Li
  */
@@ -32,6 +31,7 @@ public enum UserType {
                 return value;
             }
         }
-        throw new RuntimeException("'UserType' not found By " + str);
+        return APP_USER;
+//        throw new RuntimeException("'UserType' not found By " + str);
     }
 }

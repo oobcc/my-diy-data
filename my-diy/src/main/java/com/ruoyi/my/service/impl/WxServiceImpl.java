@@ -11,7 +11,9 @@ import com.ruoyi.my.domain.vo.LoginVo;
 import com.ruoyi.my.mapper.WxUserMapper;
 import com.ruoyi.my.service.WxService;
 import com.xxl.job.admin.controller.JobInfoController;
+
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.slf4j.Logger;
@@ -54,9 +56,13 @@ public class WxServiceImpl implements WxService {
                             String.format("%s%s", prefix, suffix)));
                 }
                 // 设置openid和用户名
-                wxUser = WxUser.builder().openId(Long.parseLong(session.getOpenid()))
-                    .nickName(String.format("%s%s", prefix, suffix)).build();
+                wxUser = WxUser.builder().openId(session.getOpenid())
+                    .nickName(String.format("%s%s", prefix, suffix))
+                    .userType("app_user")
+                    .build();
                 wxUserMapper.insert(wxUser);
+
+                log.info("userId:{} 插入成功", wxUser.getUserId());
             }
             StpUtil.login(wxUser.getUserId());
             return R.ok(new LoginVo(StpUtil.getTokenName(), StpUtil.getTokenValue()));
