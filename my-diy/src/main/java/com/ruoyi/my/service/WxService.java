@@ -1,10 +1,10 @@
 package com.ruoyi.my.service;
 
 
+import cn.dev33.satoken.stp.SaTokenInfo;
 import com.ruoyi.common.core.domain.R;
-import com.ruoyi.my.domain.vo.LoginVo;
 
 public interface WxService {
 
-    R<LoginVo> login(String code);
+    R<SaTokenInfo> login(String code);
 }
