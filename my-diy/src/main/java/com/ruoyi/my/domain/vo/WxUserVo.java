@@ -8,7 +8,6 @@ import lombok.Data;
 import java.util.Date;
 
 
-
 /**
  * wx 端用户信息视图对象 wx_user
  *
@@ -31,7 +30,7 @@ public class WxUserVo {
      * 用户openid
      */
     @ExcelProperty(value = "用户openid")
-    private Long openId;
+    private String openId;
 
     /**
      * 用户昵称
