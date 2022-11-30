@@ -3,17 +3,15 @@ package com.ruoyi.my.service.impl;
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.util.WxMaConfigHolder;
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.my.domain.WxUser;
-import com.ruoyi.my.domain.vo.LoginVo;
 import com.ruoyi.my.mapper.WxUserMapper;
 import com.ruoyi.my.service.WxService;
 import com.xxl.job.admin.controller.JobInfoController;
-
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.slf4j.Logger;
@@ -33,7 +31,7 @@ public class WxServiceImpl implements WxService {
     @Autowired
     private WxUserMapper wxUserMapper;
 
-    public R<LoginVo> login(String code) {
+    public R<SaTokenInfo> login(String code) {
         try {
             WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(code);
             logger.debug(session.getSessionKey());
@@ -65,7 +63,7 @@ public class WxServiceImpl implements WxService {
                 log.info("userId:{} 插入成功", wxUser.getUserId());
             }
             StpUtil.login(wxUser.getUserId());
-            return R.ok(new LoginVo(StpUtil.getTokenName(), StpUtil.getTokenValue()));
+            return R.ok(StpUtil.getTokenInfo());
         } catch (WxErrorException e) {
             log.error(e.getMessage(), e);
             return R.fail(e.toString());

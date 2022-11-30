@@ -134,7 +134,6 @@ security:
     # actuator 监控配置
     - /actuator
     - /actuator/**
-    - /my/public/**
 
 
 # MyBatisPlus配置
