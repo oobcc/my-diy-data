@@ -1,13 +1,29 @@
 package com.ruoyi.my.controller;
 
+import cn.dev33.satoken.annotation.SaIgnore;
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ruoyi.common.constant.UserConstants;
+import com.ruoyi.common.core.domain.entity.SysDept;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.helper.DataBaseHelper;
+import com.ruoyi.common.utils.StreamUtils;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.my.domain.DiyAccessories;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import lombok.RequiredArgsConstructor;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import com.ruoyi.common.annotation.RepeatSubmit;
@@ -67,7 +83,7 @@ public class DiyAccessoriesController extends BaseController {
     @SaCheckPermission("system:accessories:query")
     @GetMapping("/{id}")
     public R<DiyAccessoriesVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long id) {
+    @PathVariable Long id) {
         return R.ok(iDiyAccessoriesService.queryById(id));
     }
 
@@ -102,7 +118,16 @@ public class DiyAccessoriesController extends BaseController {
     @Log(title = "配件信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
+    @PathVariable Long[] ids) {
         return toAjax(iDiyAccessoriesService.deleteWithValidByIds(Arrays.asList(ids), true));
+    }
+
+    @GetMapping("/price/{number}")
+    public R<String> getPrice(@NotEmpty(message = "编号不能为空") @PathVariable String number) {
+        try {
+            return iDiyAccessoriesService.getPrice(number);
+        } catch (JsonProcessingException e) {
+            return R.fail("失败");
+        }
     }
 }

@@ -3,11 +3,8 @@ package com.ruoyi.my.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import java.io.Serializable;
-import java.util.Date;
 import java.math.BigDecimal;
 
-import java.math.BigDecimal;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
@@ -21,7 +18,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 @TableName("diy_accessories")
 public class DiyAccessories extends BaseEntity {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * 配件id
@@ -33,13 +30,14 @@ public class DiyAccessories extends BaseEntity {
      */
     private String name;
     /**
-     *  配件编号
+     * 配件编号
      */
-    private String url;
+    private String number;
     /**
      * 配件价格
      */
     private BigDecimal price;
+
     /**
      * 删除标志（0代表存在 2代表删除）
      */

@@ -3,11 +3,8 @@ package com.ruoyi.my.domain.vo;
 import java.math.BigDecimal;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.ruoyi.common.annotation.ExcelDictFormat;
-import com.ruoyi.common.convert.ExcelDictConvert;
+import javax.validation.constraints.NotEmpty;
 import lombok.Data;
-import java.util.Date;
-
 
 
 /**
@@ -35,10 +32,10 @@ public class DiyAccessoriesVo {
     private String name;
 
     /**
-     *  配件编号
+     * 配件编号
      */
     @ExcelProperty(value = " 配件编号")
-    private String url;
+    private String number;
 
     /**
      * 配件价格
@@ -46,5 +43,11 @@ public class DiyAccessoriesVo {
     @ExcelProperty(value = "配件价格")
     private BigDecimal price;
 
+
+    /**
+     * 配件类别
+     */
+    @ExcelProperty(value = "配件类别")
+    private Long categoryId;
 
 }

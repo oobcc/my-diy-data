@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import javax.validation.constraints.*;
 
-import java.util.Date;
-
 import java.math.BigDecimal;
 import com.ruoyi.common.core.domain.BaseEntity;
 
@@ -25,25 +23,36 @@ public class DiyAccessoriesBo extends BaseEntity {
     /**
      * 配件id
      */
-    @NotNull(message = "配件id不能为空", groups = { EditGroup.class })
+    @NotNull(message = "配件id不能为空", groups = {EditGroup.class})
     private Long id;
 
     /**
      * 配件名
      */
-    @NotBlank(message = "配件名不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotBlank(message = "配件名不能为空", groups = {AddGroup.class, EditGroup.class})
     private String name;
 
     /**
-     *  配件编号
+     * 配件编号
      */
-    @NotBlank(message = " 配件编号不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String url;
+    @NotBlank(message = "配件编号不能为空")
+    private String number;
+
+    /**
+     * 配件类别
+     */
+    @NotEmpty(message = "配件类别不能为空")
+    private Long categoryId;
 
     /**
      * 配件价格
      */
     private BigDecimal price;
+
+    /**
+     * 配件类别，分类显示用
+     */
+    private Long parentId;
 
 
 }

@@ -4,9 +4,9 @@ import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.ruoyi.common.annotation.ExcelDictFormat;
 import com.ruoyi.common.convert.ExcelDictConvert;
+import java.util.List;
 import lombok.Data;
 import java.util.Date;
-
 
 
 /**
@@ -43,7 +43,11 @@ public class DiyCategoryVo {
      * 不兼容类别id
      */
     @ExcelProperty(value = "不兼容类别id")
-    private String incompatible;
+    private List<String> incompatible;
 
 
+    /**
+     * 祖级列表
+     */
+    private String ancestors;
 }

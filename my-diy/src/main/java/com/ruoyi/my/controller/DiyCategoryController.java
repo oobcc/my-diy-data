@@ -1,7 +1,10 @@
 package com.ruoyi.my.controller;
 
 import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.core.util.ArrayUtil;
+import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysMenu;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.my.domain.DiyCategory;
 import java.util.List;
 import java.util.Arrays;
@@ -49,6 +52,15 @@ public class DiyCategoryController extends BaseController {
     public R<List<DiyCategoryVo>> list(DiyCategoryBo bo) {
         List<DiyCategoryVo> list = iDiyCategoryService.queryList(bo);
         return R.ok(list);
+    }
+
+    @GetMapping("/list/exclude/{deptId}")
+    public R<List<DiyCategoryVo>> excludeChild(
+        @PathVariable(value = "deptId", required = false) Long deptId) {
+        List<DiyCategoryVo> depts = iDiyCategoryService.queryList(new DiyCategoryBo());
+        depts.removeIf(d -> d.getId().equals(deptId)
+            || ArrayUtil.contains(StringUtils.split(d.getAncestors(), ","), deptId + ""));
+        return R.ok(depts);
     }
 
     /**

@@ -1,12 +1,12 @@
 package com.ruoyi.my.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.core.util.ObjectUtil;
+import com.ruoyi.common.helper.DataBaseHelper;
 import com.ruoyi.common.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.ruoyi.common.utils.TreeBuildUtils;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.ruoyi.my.domain.bo.DiyCategoryBo;
@@ -54,7 +54,7 @@ public class DiyCategoryServiceImpl implements IDiyCategoryService {
         LambdaQueryWrapper<DiyCategory> lqw = Wrappers.lambdaQuery();
         lqw.eq(bo.getParentId() != null, DiyCategory::getParentId, bo.getParentId());
         lqw.like(StringUtils.isNotBlank(bo.getName()), DiyCategory::getName, bo.getName());
-        lqw.eq(StringUtils.isNotBlank(bo.getIncompatible()), DiyCategory::getIncompatible,
+        lqw.eq(ObjectUtil.isNotNull(bo.getIncompatible()), DiyCategory::getIncompatible,
             bo.getIncompatible());
         return lqw;
     }
@@ -65,6 +65,8 @@ public class DiyCategoryServiceImpl implements IDiyCategoryService {
     @Override
     public Boolean insertByBo(DiyCategoryBo bo) {
         DiyCategory add = BeanUtil.toBean(bo, DiyCategory.class);
+        DiyCategory parentCategory = baseMapper.selectById(bo.getParentId());
+        add.setAncestors(parentCategory.getAncestors() + "," + bo.getParentId());
         validEntityBeforeSave(add);
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
@@ -78,9 +80,33 @@ public class DiyCategoryServiceImpl implements IDiyCategoryService {
      */
     @Override
     public Boolean updateByBo(DiyCategoryBo bo) {
-        DiyCategory update = BeanUtil.toBean(bo, DiyCategory.class);
-        validEntityBeforeSave(update);
-        return baseMapper.updateById(update) > 0;
+        DiyCategory add = BeanUtil.toBean(bo, DiyCategory.class);
+        DiyCategory newParent = baseMapper.selectById(bo.getParentId());
+        DiyCategory oldCategory = baseMapper.selectById(bo.getId());
+        if (ObjectUtil.isNotNull(oldCategory) && ObjectUtil.isNotNull(oldCategory)
+        ) {
+            String newAncestors = newParent.getAncestors() + "," + newParent.getId();
+            String oldAncestors = oldCategory.getAncestors();
+            add.setAncestors(newAncestors);
+            updateCategoryChildren(oldCategory.getId(), newAncestors, oldAncestors);
+        }
+        return baseMapper.updateById(add) > 0;
+    }
+
+    private void updateCategoryChildren(Long id, String newAncestors, String oldAncestors) {
+        List<DiyCategory> children = baseMapper.selectList(new LambdaQueryWrapper<DiyCategory>()
+            .apply(DataBaseHelper.findInSet(id, "ancestors")));
+        List<DiyCategory> list = new ArrayList<>();
+        for (DiyCategory c : children) {
+            DiyCategory diyCategory = new DiyCategory();
+            diyCategory.setId(c.getId());
+            diyCategory.setAncestors(c.getAncestors().replaceFirst(oldAncestors, newAncestors));
+            list.add(diyCategory);
+        }
+        if (list.size() > 0) {
+            baseMapper.updateBatchById(list);
+        }
+
     }
 
     /**

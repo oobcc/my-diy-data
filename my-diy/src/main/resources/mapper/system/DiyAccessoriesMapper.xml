@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.my.mapper.DiyAccessoriesMapper">
 
     <resultMap type="com.ruoyi.my.domain.DiyAccessories" id="DiyAccessoriesResult">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
-        <result property="url" column="url"/>
+        <result property="number" column="number"/>
         <result property="price" column="price"/>
         <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
+
+    <resultMap type="com.ruoyi.my.domain.vo.DiyAccessoriesVo" id="DiyAccessoriesVoResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="number" column="number"/>
+        <result property="price" column="price"/>
+        <result property="categoryId" column="categoryId"/>
+    </resultMap>
+
+
+    <select id="selectVoList" resultMap="DiyAccessoriesVoResult">
+        select distinct a.id, a.name, a.number, a.price, c.id
+        from diy_accessories a
+                 left join diy_accessories_category b on a.id = b.accessories_id
+                 left join diy_category c on b.category_id = c.id
+        where a.del_flag = 0
+    </select>
 
 
 </mapper>

@@ -1,6 +1,8 @@
 package com.ruoyi.my.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.ruoyi.my.handler.ListToVarcharTypeHandler;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.io.Serializable;
@@ -17,10 +19,10 @@ import com.ruoyi.common.core.domain.TreeEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("diy_category")
+@TableName(value = "diy_category", autoResultMap = true)
 public class DiyCategory extends TreeEntity<DiyCategory> {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * 配件类别id
@@ -34,7 +36,15 @@ public class DiyCategory extends TreeEntity<DiyCategory> {
     /**
      * 不兼容类别id
      */
-    private String incompatible;
+    @TableField(typeHandler = ListToVarcharTypeHandler.class)
+    private List<String> incompatible;
+
+
+    /**
+     * 祖级列表
+     */
+    private String ancestors;
+
     /**
      * 删除标志（0代表存在 2代表删除）
      */

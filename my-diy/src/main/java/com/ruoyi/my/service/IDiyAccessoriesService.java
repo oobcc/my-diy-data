@@ -1,5 +1,7 @@
 package com.ruoyi.my.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.my.domain.DiyAccessories;
 import com.ruoyi.my.domain.vo.DiyAccessoriesVo;
 import com.ruoyi.my.domain.bo.DiyAccessoriesBo;
@@ -46,4 +48,6 @@ public interface IDiyAccessoriesService {
      * 校验并批量删除配件信息信息
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    R<String> getPrice(String number) throws JsonProcessingException;
 }
