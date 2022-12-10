@@ -6,6 +6,8 @@ import com.ruoyi.common.helper.DataBaseHelper;
 import com.ruoyi.common.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ruoyi.my.domain.DiyAccessoriesCategory;
+import com.ruoyi.my.mapper.DiyAccessoriesCategoryMapper;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ import java.util.Collection;
 public class DiyCategoryServiceImpl implements IDiyCategoryService {
 
     private final DiyCategoryMapper baseMapper;
+    private final DiyAccessoriesCategoryMapper diyAccessoriesCategoryMapper;
 
     /**
      * 查询配件类别
@@ -83,7 +86,7 @@ public class DiyCategoryServiceImpl implements IDiyCategoryService {
         DiyCategory add = BeanUtil.toBean(bo, DiyCategory.class);
         DiyCategory newParent = baseMapper.selectById(bo.getParentId());
         DiyCategory oldCategory = baseMapper.selectById(bo.getId());
-        if (ObjectUtil.isNotNull(oldCategory) && ObjectUtil.isNotNull(oldCategory)
+        if (ObjectUtil.isNotNull(newParent) && ObjectUtil.isNotNull(oldCategory)
         ) {
             String newAncestors = newParent.getAncestors() + "," + newParent.getId();
             String oldAncestors = oldCategory.getAncestors();
@@ -126,5 +129,37 @@ public class DiyCategoryServiceImpl implements IDiyCategoryService {
         }
         return baseMapper.deleteBatchIds(ids) > 0;
     }
+
+    @Override
+    public int deleteCategoryById(Long ids) {
+        return baseMapper.deleteById(ids);
+    }
+
+    /**
+     * 是否存在子节点
+     *
+     * @param ids 类别ID
+     * @return 结果
+     */
+    @Override
+    public boolean checkCategoryIdExistAccessorie(Long ids) {
+
+        return diyAccessoriesCategoryMapper.exists(new LambdaQueryWrapper<DiyAccessoriesCategory>()
+            .eq(DiyAccessoriesCategory::getCategoryId, ids));
+
+    }
+
+    /**
+     * 是否存在该分类是否存在配件
+     *
+     * @param ids 类别ID
+     * @return 结果
+     */
+    @Override
+    public boolean hasChildByCategoryId(Long ids) {
+        return baseMapper.exists(new LambdaQueryWrapper<DiyCategory>()
+            .eq(DiyCategory::getParentId, ids));
+    }
+
 
 }

@@ -43,4 +43,9 @@ public interface IDiyCategoryService {
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
 
 
+    int deleteCategoryById(Long ids);
+
+    boolean checkCategoryIdExistAccessorie(Long ids);
+
+    boolean hasChildByCategoryId(Long ids);
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.my.mapper.DiyAccessoriesListMapper">
+
+    <resultMap type="com.ruoyi.my.domain.DiyAccessoriesList" id="DiyAccessoriesListResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="cpuId" column="cpu_id"/>
+        <result property="motherboardId" column="motherboard_id"/>
+        <result property="graphicsCardId" column="graphics_card_id"/>
+        <result property="memoryId" column="memory_id"/>
+        <result property="storeId" column="store_id"/>
+        <result property="powerId" column="power_id"/>
+        <result property="chassisId" column="chassis_id"/>
+        <result property="price" column="price"/>
+        <result property="label" column="label"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+
+</mapper>

@@ -2,6 +2,7 @@ package com.ruoyi.my.controller;
 
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysMenu;
 import com.ruoyi.common.utils.StringUtils;
@@ -105,6 +106,9 @@ public class DiyCategoryController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody DiyCategoryBo bo) {
+        if (ObjectUtil.isNotNull(bo.getId()) && bo.getId() < 10) {
+            return R.warn("不允许修改基本类别");
+        }
         return toAjax(iDiyCategoryService.updateByBo(bo));
     }
 
@@ -116,8 +120,17 @@ public class DiyCategoryController extends BaseController {
     @SaCheckPermission("system:category:remove")
     @Log(title = "配件类别", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public R<Void> remove(@NotEmpty(message = "主键不能为空")
-    @PathVariable Long[] ids) {
-        return toAjax(iDiyCategoryService.deleteWithValidByIds(Arrays.asList(ids), true));
+    public R<Void> remove(@NotNull(message = "主键不能为空")
+    @PathVariable Long ids) {
+        if (ids < 10) {
+            return R.warn("不允许删除基本类别");
+        }
+        if (iDiyCategoryService.hasChildByCategoryId(ids)) {
+            return R.warn("存在下级分类,不允许删除");
+        }
+        if (iDiyCategoryService.checkCategoryIdExistAccessorie(ids)) {
+            return R.warn("分类存在配件,不允许删除");
+        }
+        return toAjax(iDiyCategoryService.deleteCategoryById(ids));
     }
 }
