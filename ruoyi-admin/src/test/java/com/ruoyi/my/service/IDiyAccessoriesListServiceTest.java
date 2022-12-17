@@ -1,6 +1,7 @@
 package com.ruoyi.my.service;
 
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.my.config.UrlConfig;
 import com.ruoyi.my.domain.DiyAccessoriesList;
 import com.ruoyi.my.mapper.DiyAccessoriesListMapper;
 import com.ruoyi.my.service.impl.DiyAccessoriesListServiceImpl.priceResult;
@@ -15,19 +16,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 class IDiyAccessoriesListServiceTest {
 
     @Autowired
-    private DiyAccessoriesListMapper diyAccessoriesListMapper;
-
-    @Autowired
-    private IDiyAccessoriesListService iDiyAccessoriesListService;
-
+    private UrlConfig urlConfig;
 
     @Test
-    void getPriceForList() {
-        List<DiyAccessoriesList> diyAccessoriesLists = diyAccessoriesListMapper.selectList();
-        DiyAccessoriesList diyAccessoriesList = diyAccessoriesLists.get(0);
-        R<priceResult> priceForList = iDiyAccessoriesListService.getPriceForList(
-            diyAccessoriesList);
-        System.out.println(priceForList);
-
+    public void Text() {
+        System.out.println(urlConfig);
     }
+
 }
+
+
+

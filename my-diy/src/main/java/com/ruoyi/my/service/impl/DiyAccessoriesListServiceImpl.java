@@ -13,6 +13,7 @@ import com.ruoyi.common.core.domain.PageQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ruoyi.my.config.UrlConfig;
 import com.ruoyi.my.domain.DiyAccessories;
 import com.ruoyi.my.domain.DiyAccessoriesCategory;
 import com.ruoyi.my.domain.DiyCategory;
@@ -38,6 +39,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -77,6 +79,8 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
     private final RestTemplate restTemplate;
 
     private final DiyLableMapper diyLableMapper;
+
+    private final UrlConfig urlConfig;
 
     /**
      * 查询配件单
@@ -328,7 +332,7 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
         json.set("list", list);
 
         ObjectMapper mapper = new ObjectMapper();
-        String url = "http://127.0.0.1:32400/getPriceByMap";
+        String url = urlConfig.getPriceurl() + "/getPriceByMap";
 
         HttpHeaders headers = new HttpHeaders();
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");

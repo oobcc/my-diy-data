@@ -14,6 +14,7 @@ import com.ruoyi.common.core.domain.PageQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ruoyi.my.config.UrlConfig;
 import com.ruoyi.my.domain.DiyAccessoriesCategory;
 import com.ruoyi.my.domain.DiyCategory;
 import com.ruoyi.my.mapper.DiyAccessoriesCategoryMapper;
@@ -47,6 +48,8 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
     private final DiyAccessoriesCategoryMapper diyAccessoriesCategoryMapper;
 
     private final DiyCategoryMapper diyCategoryMapper;
+
+    private final UrlConfig urlConfig;
 
     /**
      * 查询配件信息
@@ -170,9 +173,10 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
     @Override
     public R<String> getPrice(String number) {
         ObjectMapper mapper = new ObjectMapper();
+        String url = urlConfig.getPriceurl() + "?id=" + number;
         try {
             return mapper.readValue(
-                restTemplate.getForObject("http://127.0.0.1:32400/?id=" + number, String.class),
+                restTemplate.getForObject(url, String.class),
                 mapper.getTypeFactory().constructParametricType(R.class, String.class));
         } catch (JsonProcessingException e) {
             return R.fail("失败");

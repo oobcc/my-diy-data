@@ -18,6 +18,7 @@ import com.ruoyi.common.enums.UserType;
 import com.ruoyi.common.exception.UtilException;
 import com.ruoyi.common.helper.DataBaseHelper;
 import com.ruoyi.common.helper.LoginHelper;
+import com.ruoyi.my.config.UrlConfig;
 import com.ruoyi.my.domain.DiyAccessoriesList;
 import com.ruoyi.my.domain.DiyLable;
 import com.ruoyi.my.domain.DiyUserAccessoriesList;
@@ -69,6 +70,9 @@ public class WxServiceImpl implements WxService {
     @Autowired
     private DiyAccessoriesListMapper diyAccessoriesListMapper;
 
+    @Autowired
+    private UrlConfig urlConfig;
+
     public R<LoginVo> login(String code) {
         try {
             Long userId = LoginHelper.getUserId();
@@ -119,7 +123,7 @@ public class WxServiceImpl implements WxService {
 
     @Override
     public String[] getLabel(String text) {
-        String url = "http://127.0.0.1:35600/predict?text=" + text;
+        String url = urlConfig.getPredicturl() + "/predict?text=" + text;
 
         ObjectMapper mapper = new ObjectMapper();
         String content = restTemplate.getForEntity(url, String.class).getBody();
