@@ -122,6 +122,12 @@ public class DiyAccessoriesController extends BaseController {
         return toAjax(iDiyAccessoriesService.deleteWithValidByIds(Arrays.asList(ids), true));
     }
 
+    /**
+     * 获取配件单价格
+     *
+     * @param number 配件京东id
+     * @return 价格
+     */
     @GetMapping("/price/{number}")
     public R<String> getPrice(@NotEmpty(message = "编号不能为空") @PathVariable String number) {
         try {

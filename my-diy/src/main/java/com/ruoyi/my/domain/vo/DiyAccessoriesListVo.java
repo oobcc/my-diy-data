@@ -6,6 +6,7 @@ import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.ruoyi.common.annotation.ExcelDictFormat;
 import com.ruoyi.common.convert.ExcelDictConvert;
+import java.util.List;
 import lombok.Data;
 import java.util.Date;
 
@@ -93,7 +94,7 @@ public class DiyAccessoriesListVo {
      * 标签
      */
     @ExcelProperty(value = "标签")
-    private String label;
+    private List<Long> label;
 
     /**
      * 备注

@@ -1,5 +1,6 @@
 package com.ruoyi.my.domain.bo;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.ruoyi.common.core.validate.AddGroup;
 import com.ruoyi.common.core.validate.EditGroup;
 import lombok.Data;
@@ -43,6 +44,11 @@ public class DiyAccessoriesBo extends BaseEntity {
      */
     @NotEmpty(message = "配件类别不能为空")
     private Long categoryId;
+
+    /**
+     * 警告
+     */
+    private String warning;
 
     /**
      * 配件价格

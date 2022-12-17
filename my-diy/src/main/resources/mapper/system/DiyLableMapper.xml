@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.my.mapper.DiyLableMapper">
+
+    <resultMap type="com.ruoyi.my.domain.DiyLable" id="DiyLableResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="accessListIds" column="access_list_ids"
+            typeHandler="com.ruoyi.my.handler.LongArrayListTypeHandler"/>
+    </resultMap>
+
+
+</mapper>

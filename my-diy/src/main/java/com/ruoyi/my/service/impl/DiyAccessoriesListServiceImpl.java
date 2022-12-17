@@ -2,8 +2,11 @@ package com.ruoyi.my.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.helper.DataBaseHelper;
-import com.ruoyi.common.utils.StreamUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.core.domain.PageQuery;
@@ -13,21 +16,32 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ruoyi.my.domain.DiyAccessories;
 import com.ruoyi.my.domain.DiyAccessoriesCategory;
 import com.ruoyi.my.domain.DiyCategory;
+import com.ruoyi.my.domain.DiyLable;
+import com.ruoyi.my.domain.DiyUserAccessoriesList;
 import com.ruoyi.my.mapper.DiyAccessoriesCategoryMapper;
 import com.ruoyi.my.mapper.DiyAccessoriesMapper;
 import com.ruoyi.my.mapper.DiyCategoryMapper;
+import com.ruoyi.my.mapper.DiyLableMapper;
+import com.ruoyi.my.mapper.DiyUserAccessoriesListMapper;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import com.ruoyi.my.domain.bo.DiyAccessoriesListBo;
 import com.ruoyi.my.domain.vo.DiyAccessoriesListVo;
@@ -38,6 +52,7 @@ import com.ruoyi.my.service.IDiyAccessoriesListService;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * 配件单Service业务层处理
@@ -56,6 +71,12 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
     private final DiyAccessoriesCategoryMapper diyAccessoriesCategoryMapper;
 
     private final DiyAccessoriesMapper diyAccessoriesMapper;
+
+    private final DiyUserAccessoriesListMapper diyUserAccessoriesListMapper;
+
+    private final RestTemplate restTemplate;
+
+    private final DiyLableMapper diyLableMapper;
 
     /**
      * 查询配件单
@@ -100,7 +121,6 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
         lqw.eq(bo.getPowerId() != null, DiyAccessoriesList::getPowerId, bo.getPowerId());
         lqw.eq(bo.getChassisId() != null, DiyAccessoriesList::getChassisId, bo.getChassisId());
         lqw.eq(bo.getPrice() != null, DiyAccessoriesList::getPrice, bo.getPrice());
-        lqw.eq(StringUtils.isNotBlank(bo.getLabel()), DiyAccessoriesList::getLabel, bo.getLabel());
         lqw.eq(StringUtils.isNotBlank(bo.getRemark()), DiyAccessoriesList::getRemark,
             bo.getRemark());
         return lqw;
@@ -166,10 +186,10 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
     }
 
     @Override
-    public Map<Long, String> getMap() {
+    public Map<Long, DiyAccessories> getMap() {
         List<DiyAccessories> diyAccessories = diyAccessoriesMapper.selectList();
         return diyAccessories.stream()
-            .collect(Collectors.toMap(DiyAccessories::getId, DiyAccessories::getName));
+            .collect(Collectors.toMap(DiyAccessories::getId, d -> d));
     }
 
 
@@ -183,7 +203,7 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
             put("powerId", 7L);
             put("chassisId", 8L);
         }};
-        Set<String> set = new HashSet<>(); //所有的不兼容类别
+        Set<String> incompatibleCategories = new HashSet<>(); //所有的不兼容类别
         Set<String> set2 = new HashSet<>(); //所有的添加过的列别，用于方向判别
 
         //添加不兼容类型
@@ -209,15 +229,12 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
                             .eq(DiyAccessoriesCategory::getAccessoriesId, v)).getCategoryId()
                     .toString());
 
-                for (String ancestor : ancestorsList) {
-                    if (Long.parseLong(ancestor) > 10) { // 如果是基本类型，就不用理会
-                        List<String> incompatible = diyCategoryMapper.selectById(ancestor)
-                            .getIncompatible();
-                        if (ObjectUtil.isNotNull(incompatible)) {
-                            set.addAll(incompatible); //添加不兼容类别
-                        }
-                    }
-                }
+                // 如果是基本类型，就不用理会
+                //添加不兼容类别
+                ancestorsList.stream().filter(ancestor -> Long.parseLong(ancestor) > 10)
+                    .map(ancestor -> diyCategoryMapper.selectById(ancestor)
+                        .getIncompatible()).filter(ObjectUtil::isNotNull)
+                    .forEach(incompatibleCategories::addAll);
             }
         });
 
@@ -227,29 +244,27 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
                 .apply(DataBaseHelper.findInSet(cateId, "ancestors")));
 
         // 排除只是单向添加不兼容的类别
-        for (DiyCategory diyCategory : categories0) {
-            if (ObjectUtil.isNotNull(diyCategory.getIncompatible())) {
-                for (String s : diyCategory.getIncompatible()) {
-                    if (set2.contains(s)) {
-                        set.addAll(
-                            diyCategoryMapper.selectList(new LambdaQueryWrapper<DiyCategory>()
-                                    .apply(DataBaseHelper.findInSet(diyCategory.getId(), "ancestors")))
-                                .stream().map(c -> c.getId().toString())
-                                .collect(Collectors.toList()));
-                        set.add(diyCategory.getId().toString());
-                        break;
-                    }
-                }
-            }
-        }
+        categories0.stream()
+            .filter(diyCategory -> ObjectUtil.isNotNull(diyCategory.getIncompatible()))
+            .filter(diyCategory -> diyCategory.getIncompatible().stream().anyMatch(set2::contains))
+            .forEachOrdered(diyCategory -> {
+                incompatibleCategories.addAll(
+                    diyCategoryMapper.selectList(new LambdaQueryWrapper<DiyCategory>()
+                            .apply(DataBaseHelper.findInSet(diyCategory.getId(), "ancestors")))
+                        .stream().map(c -> c.getId().toString())
+                        .collect(Collectors.toList()));
+                incompatibleCategories.add(diyCategory.getId().toString());
+            });
 
         List<DiyCategory> categories = diyCategoryMapper.selectList(
             // 获取cateId 下所有兼容的类别id
             new LambdaQueryWrapper<DiyCategory>()
                 .select(DiyCategory::getId)
                 .apply(DataBaseHelper.findInSet(cateId, "ancestors"))
-                .notIn(set.size() > 0, DiyCategory::getId, set)
-                .notIn(set.size() > 0, DiyCategory::getParentId, set));
+                .notIn(incompatibleCategories.size() > 0, DiyCategory::getId,
+                    incompatibleCategories)
+                .notIn(incompatibleCategories.size() > 0, DiyCategory::getParentId,
+                    incompatibleCategories));
 
         if (categories.size() == 0) {
             return null;
@@ -278,5 +293,146 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
             new LambdaQueryWrapper<DiyAccessories>()
                 .in(DiyAccessories::getId,
                     getAccessoriesIds));
+    }
+
+    @Override
+    public R<priceResult> getPriceById(Long id) {
+        return getPriceForList(baseMapper.selectById(id));
+    }
+
+    /**
+     * 获取配件单价格
+     *
+     * @param diyAccessoriesList 配件单
+     * @return
+     */
+    @SneakyThrows
+    @Override
+    public R<priceResult> getPriceForList(DiyAccessoriesList diyAccessoriesList) {
+        Field[] fields = diyAccessoriesList.getClass().getDeclaredFields();
+        List<String> diyAccessriesIds = new ArrayList<>();
+        for (Field f : fields) {
+            if (f.getType() == Long.class && !f.getName().equals("id")) {
+                f.setAccessible(true);
+                if (null != f.get(diyAccessoriesList)) {
+                    diyAccessriesIds.add(f.get(diyAccessoriesList).toString());
+                }
+            }
+        }
+        Map<String, DiyAccessories> numberAccessMap = diyAccessriesIds.stream()
+            .map(diyAccessoriesMapper::selectById)
+            .collect(Collectors.toMap(DiyAccessories::getNumber, d -> d));
+        List<String> list = new ArrayList<>(numberAccessMap.keySet());
+
+        JSONObject json = new JSONObject();
+        json.set("list", list);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String url = "http://127.0.0.1:32400/getPriceByMap";
+
+        HttpHeaders headers = new HttpHeaders();
+        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        HttpEntity<String> formEntity = new HttpEntity<String>(json.toString(), headers);
+
+        try {
+            String content = restTemplate.postForEntity(url, formEntity, String.class).getBody();
+            R<priceResult> priceResultR = mapper.readValue(
+                content,
+                mapper.getTypeFactory().constructParametricType(R.class, priceResult.class));
+            Map<String, Float> pricelist = priceResultR.getData().getPricelist();
+
+            BigDecimal price = new BigDecimal(priceResultR.getData().getPriceSum());
+
+            //异常配件
+            List<String> numberList = pricelist.entrySet().stream()
+                .filter(map -> map.getValue() < 1)
+                .map(Entry::getKey).collect(Collectors.toList());
+            for (String accNumber : numberList) {
+                DiyAccessories diyAccessories = numberAccessMap.get(accNumber);
+                price = price.add(diyAccessories.getPrice());
+            }
+
+            diyAccessoriesList.setPrice(price);
+            baseMapper.updateById(diyAccessoriesList);
+            updatePrice(pricelist, numberAccessMap);
+            return priceResultR;
+        } catch (JsonProcessingException e) {
+            return R.fail("失败");
+        }
+    }
+
+    /**
+     * 通过用户id获取配件单
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<DiyAccessoriesList> getDiyAccessoriesListByUserId(Long userId) {
+        return baseMapper.getDiyUserAccessoriesListByUserId(userId);
+    }
+
+    /**
+     * 通过用户id添加配件单
+     *
+     * @param diyAccessoriesList
+     * @param userId
+     * @return
+     */
+    @Override
+    public Boolean addOrUpdateUserConfigs(DiyAccessoriesList diyAccessoriesList,
+        Long userId) {
+        if (ObjectUtil.isNotNull(diyAccessoriesList.getId())) {
+            return baseMapper.updateById(diyAccessoriesList) > 0;
+        }
+        diyAccessoriesList.setType("1");
+        int insert = baseMapper.insert(diyAccessoriesList);
+        int insert1 = diyUserAccessoriesListMapper.insert(
+            DiyUserAccessoriesList.builder().userId(userId)
+                .AccessoriesListId(diyAccessoriesList.getId()).build());
+        return insert1 > 0 && insert > 0;
+    }
+
+    @Override
+    public boolean removeUserConfigs(String id, Long userId) {
+
+        DiyUserAccessoriesList diyUserAccessoriesList = diyUserAccessoriesListMapper.selectOne(
+            new LambdaQueryWrapper<DiyUserAccessoriesList>()
+                .eq(DiyUserAccessoriesList::getUserId, userId)
+                .eq(DiyUserAccessoriesList::getAccessoriesListId, id));
+        if (ObjectUtil.isNotNull(diyUserAccessoriesList)) {
+            return diyUserAccessoriesListMapper.deleteById(diyUserAccessoriesList) > 0;
+        }
+        return false;
+    }
+
+    @Async
+    public void updatePrice(Map<String, Float> pricelist,
+        Map<String, DiyAccessories> numberAccessMap) {
+        for (String s : pricelist.keySet()) {
+            DiyAccessories diyAccessories = numberAccessMap.get(s);
+            if (diyAccessories.getNumber().equals("0")) {
+                continue;
+            }
+            BigDecimal newPrice = new BigDecimal(Float.toString(pricelist.get(s)));
+            if (newPrice.compareTo(BigDecimal.ZERO) < 1) {
+                diyAccessories.setWarning("该商品可能被京东下架");
+                diyAccessoriesMapper.updateById(diyAccessories);
+            } else if (Math.abs(newPrice.compareTo(diyAccessories.getPrice())) > 1e-5) {
+                diyAccessories.setPrice(newPrice);
+                diyAccessoriesMapper.updateById(diyAccessories);
+            }
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class priceResult {
+
+        private Map<String, Float> pricelist;
+        private String priceSum;
     }
 }

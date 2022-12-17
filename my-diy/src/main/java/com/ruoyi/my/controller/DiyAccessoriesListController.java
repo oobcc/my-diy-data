@@ -1,15 +1,15 @@
 package com.ruoyi.my.controller;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import com.ruoyi.my.domain.DiyAccessories;
 import com.ruoyi.my.domain.DiyAccessoriesList;
-import com.ruoyi.my.domain.DiyCategory;
+import com.ruoyi.my.service.impl.DiyAccessoriesListServiceImpl.priceResult;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import java.util.regex.Pattern;
-import javax.naming.Name;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.*;
@@ -23,7 +23,6 @@ import com.ruoyi.common.core.domain.PageQuery;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.validate.AddGroup;
 import com.ruoyi.common.core.validate.EditGroup;
-import com.ruoyi.common.core.validate.QueryGroup;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.my.domain.vo.DiyAccessoriesListVo;
@@ -49,8 +48,8 @@ public class DiyAccessoriesListController extends BaseController {
      * 查询配件单k,v对应
      */
     @GetMapping("/map")
-    public Map<Long, String> getMap() {
-        return iDiyAccessoriesListService.getMap();
+    public R<Map<Long, DiyAccessories>> getMap() {
+        return R.ok(iDiyAccessoriesListService.getMap());
     }
 
     /**
@@ -94,6 +93,7 @@ public class DiyAccessoriesListController extends BaseController {
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody DiyAccessoriesListBo bo) {
         bo.setType("0"); //设置为系统配置单
+        bo.setLabel(bo.getLabel().stream().distinct().collect(Collectors.toList()));
         return toAjax(iDiyAccessoriesListService.insertByBo(bo));
     }
 
@@ -140,5 +140,19 @@ public class DiyAccessoriesListController extends BaseController {
             return R.warn("获取商品类别错误");
         }
         return R.ok(iDiyAccessoriesListService.getCateAcce(c, diyAccessoriesList));
+    }
+
+    /**
+     * 通过id查询配件单的总价格
+     *
+     * @return
+     */
+    @GetMapping("/getPriceById/{id}")
+    public R<priceResult> getPriceById(@PathVariable String id) {
+        if (!Pattern.matches("^-?\\d+$", id)) {
+            return R.warn("id错误");
+        }
+        long c = Long.parseLong(id);
+        return iDiyAccessoriesListService.getPriceById(c);
     }
 }

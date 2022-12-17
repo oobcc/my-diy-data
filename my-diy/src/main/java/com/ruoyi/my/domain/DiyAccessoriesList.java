@@ -1,6 +1,9 @@
 package com.ruoyi.my.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.ruoyi.my.handler.ListToVarcharTypeHandler;
+import com.ruoyi.my.handler.LongArrayListTypeHandler;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.io.Serializable;
@@ -18,7 +21,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("diy_accessories_list")
+@TableName(value = "diy_accessories_list", autoResultMap = true)
 public class DiyAccessoriesList extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -72,7 +75,8 @@ public class DiyAccessoriesList extends BaseEntity {
     /**
      * 标签
      */
-    private String label;
+    @TableField(typeHandler = LongArrayListTypeHandler.class)
+    private List<Long> label;
 
     /**
      * 备注

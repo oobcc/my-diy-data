@@ -53,7 +53,8 @@ public class SysOssController extends BaseController {
      */
     @SaCheckPermission("system:oss:list")
     @GetMapping("/list")
-    public TableDataInfo<SysOssVo> list(@Validated(QueryGroup.class) SysOssBo bo, PageQuery pageQuery) {
+    public TableDataInfo<SysOssVo> list(@Validated(QueryGroup.class) SysOssBo bo,
+        PageQuery pageQuery) {
         return iSysOssService.queryPageList(bo, pageQuery);
     }
 
@@ -65,7 +66,7 @@ public class SysOssController extends BaseController {
     @SaCheckPermission("system:oss:list")
     @GetMapping("/listByIds/{ossIds}")
     public R<List<SysOssVo>> listByIds(@NotEmpty(message = "主键不能为空")
-                                       @PathVariable Long[] ossIds) {
+    @PathVariable Long[] ossIds) {
         List<SysOssVo> list = iSysOssService.listByIds(Arrays.asList(ossIds));
         return R.ok(list);
     }
@@ -97,8 +98,9 @@ public class SysOssController extends BaseController {
      */
     @SaCheckPermission("system:oss:download")
     @GetMapping("/download/{ossId}")
-    public void download(@PathVariable Long ossId, HttpServletResponse response) throws IOException {
-        iSysOssService.download(ossId,response);
+    public void download(@PathVariable Long ossId, HttpServletResponse response)
+        throws IOException {
+        iSysOssService.download(ossId, response);
     }
 
     /**
@@ -110,7 +112,7 @@ public class SysOssController extends BaseController {
     @Log(title = "OSS对象存储", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ossIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ossIds) {
+    @PathVariable Long[] ossIds) {
         return toAjax(iSysOssService.deleteWithValidByIds(Arrays.asList(ossIds), true));
     }
 

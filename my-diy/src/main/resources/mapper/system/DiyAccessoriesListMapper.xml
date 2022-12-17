@@ -16,7 +16,8 @@
         <result property="powerId" column="power_id"/>
         <result property="chassisId" column="chassis_id"/>
         <result property="price" column="price"/>
-        <result property="label" column="label"/>
+        <result property="label" column="label"
+            typeHandler="com.ruoyi.my.handler.LongArrayListTypeHandler"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -24,5 +25,11 @@
         <result property="remark" column="remark"/>
     </resultMap>
 
+    <select id="getDiyUserAccessoriesListByUserId" resultMap="DiyAccessoriesListResult">
+        select *
+        from diy_accessories_list a
+                 left join diy_user_accessories_list b on a.id = b.accessories_list_id
+        where b.user_id = #{id}
+    </select>
 
 </mapper>

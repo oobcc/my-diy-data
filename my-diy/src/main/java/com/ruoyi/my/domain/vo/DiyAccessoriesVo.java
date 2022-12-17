@@ -43,6 +43,11 @@ public class DiyAccessoriesVo {
     @ExcelProperty(value = "配件价格")
     private BigDecimal price;
 
+    /**
+     * 警告
+     */
+    @ExcelProperty(value = "警告信息")
+    private String warning;
 
     /**
      * 配件类别

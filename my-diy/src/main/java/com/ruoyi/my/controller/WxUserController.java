@@ -1,13 +1,20 @@
 package com.ruoyi.my.controller;
 
+import cn.hutool.core.io.FileUtil;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.MimeTypeUtils;
+import com.ruoyi.system.domain.vo.SysOssVo;
+import com.ruoyi.system.service.ISysOssService;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import com.ruoyi.common.annotation.RepeatSubmit;
@@ -17,13 +24,13 @@ import com.ruoyi.common.core.domain.PageQuery;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.validate.AddGroup;
 import com.ruoyi.common.core.validate.EditGroup;
-import com.ruoyi.common.core.validate.QueryGroup;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.my.domain.vo.WxUserVo;
 import com.ruoyi.my.domain.bo.WxUserBo;
 import com.ruoyi.my.service.IWxUserService;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * wx 端用户信息
@@ -38,6 +45,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 public class WxUserController extends BaseController {
 
     private final IWxUserService iWxUserService;
+
 
     /**
      * 查询wx 端用户信息列表
@@ -67,7 +75,7 @@ public class WxUserController extends BaseController {
     @SaCheckPermission("wx:wxuser:query")
     @GetMapping("/{userId}")
     public R<WxUserVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long userId) {
+    @PathVariable Long userId) {
         return R.ok(iWxUserService.queryById(userId));
     }
 
@@ -102,7 +110,9 @@ public class WxUserController extends BaseController {
     @Log(title = "wx 端用户信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] userIds) {
+    @PathVariable Long[] userIds) {
         return toAjax(iWxUserService.deleteWithValidByIds(Arrays.asList(userIds), true));
     }
+
+
 }

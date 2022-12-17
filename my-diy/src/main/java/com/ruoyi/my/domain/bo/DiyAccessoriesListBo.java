@@ -2,6 +2,7 @@ package com.ruoyi.my.domain.bo;
 
 import com.ruoyi.common.core.validate.AddGroup;
 import com.ruoyi.common.core.validate.EditGroup;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import javax.validation.constraints.*;
@@ -25,13 +26,13 @@ public class DiyAccessoriesListBo extends BaseEntity {
     /**
      * id
      */
-    @NotNull(message = "id不能为空", groups = { EditGroup.class })
+    @NotNull(message = "id不能为空", groups = {EditGroup.class})
     private Long id;
 
     /**
      * 配件单名
      */
-    @NotBlank(message = "配件单名不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotBlank(message = "配件单名不能为空", groups = {AddGroup.class, EditGroup.class})
     private String name;
 
     /**
@@ -82,7 +83,7 @@ public class DiyAccessoriesListBo extends BaseEntity {
     /**
      * 标签
      */
-    private String label;
+    private List<Long> label;
 
     /**
      * 备注

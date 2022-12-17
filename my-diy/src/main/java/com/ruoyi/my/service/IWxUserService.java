@@ -46,4 +46,20 @@ public interface IWxUserService {
      * 校验并批量删除wx 端用户信息信息
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    /**
+     * 更新用户头像
+     *
+     * @param userId
+     * @param url
+     * @return
+     */
+    boolean updateUserAvatar(Long userId, String url);
+
+    /**
+     * 通过id获取用户信息
+     */
+    WxUserVo getUserMsgById(Long id);
+
+    WxUser updateUserNameByLoginId(Long userId, String name);
 }

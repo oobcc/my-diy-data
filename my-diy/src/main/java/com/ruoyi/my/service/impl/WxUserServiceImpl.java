@@ -35,7 +35,7 @@ public class WxUserServiceImpl implements IWxUserService {
      * 查询wx 端用户信息
      */
     @Override
-    public WxUserVo queryById(Long userId){
+    public WxUserVo queryById(Long userId) {
         return baseMapper.selectVoById(userId);
     }
 
@@ -63,7 +63,8 @@ public class WxUserServiceImpl implements IWxUserService {
         LambdaQueryWrapper<WxUser> lqw = Wrappers.lambdaQuery();
         lqw.eq(bo.getOpenId() != null, WxUser::getOpenId, bo.getOpenId());
         lqw.like(StringUtils.isNotBlank(bo.getNickName()), WxUser::getNickName, bo.getNickName());
-        lqw.eq(StringUtils.isNotBlank(bo.getPhonenumber()), WxUser::getPhonenumber, bo.getPhonenumber());
+        lqw.eq(StringUtils.isNotBlank(bo.getPhonenumber()), WxUser::getPhonenumber,
+            bo.getPhonenumber());
         lqw.eq(StringUtils.isNotBlank(bo.getAvatar()), WxUser::getAvatar, bo.getAvatar());
         lqw.eq(StringUtils.isNotBlank(bo.getIsInit()), WxUser::getIsInit, bo.getIsInit());
         return lqw;
@@ -96,7 +97,7 @@ public class WxUserServiceImpl implements IWxUserService {
     /**
      * 保存前的数据校验
      */
-    private void validEntityBeforeSave(WxUser entity){
+    private void validEntityBeforeSave(WxUser entity) {
         //TODO 做一些数据校验,如唯一约束
     }
 
@@ -105,9 +106,29 @@ public class WxUserServiceImpl implements IWxUserService {
      */
     @Override
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
-        if(isValid){
+        if (isValid) {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return baseMapper.deleteBatchIds(ids) > 0;
+    }
+
+    @Override
+    public boolean updateUserAvatar(Long userId, String url) {
+        WxUser wxUser = baseMapper.selectById(userId);
+        wxUser.setAvatar(url);
+        return baseMapper.updateById(wxUser) > 0;
+    }
+
+    @Override
+    public WxUserVo getUserMsgById(Long id) {
+        return baseMapper.selectVoById(id);
+    }
+
+    @Override
+    public WxUser updateUserNameByLoginId(Long userId, String name) {
+        WxUser wxUser = baseMapper.selectById(userId);
+        wxUser.setNickName(name);
+        baseMapper.updateById(wxUser);
+        return wxUser;
     }
 }
