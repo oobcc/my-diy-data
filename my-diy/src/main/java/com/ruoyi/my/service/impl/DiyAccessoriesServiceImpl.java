@@ -112,6 +112,13 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
      */
     @Override
     public Boolean insertByBo(DiyAccessoriesBo bo) {
+        if (ObjectUtil.isNotNull(bo.getNumber())) {
+            if (baseMapper.selectList(
+                new LambdaQueryWrapper<DiyAccessories>().eq(DiyAccessories::getNumber,
+                    bo.getNumber())).size() > 0) {
+                throw new RuntimeException(String.format("已经添加过配件编号为%s的配件", bo.getNumber()));
+            }
+        }
         DiyAccessories add = BeanUtil.toBean(bo, DiyAccessories.class);
         validEntityBeforeSave(add);
         boolean flag = baseMapper.insert(add) > 0;

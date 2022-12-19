@@ -3,7 +3,6 @@ package com.ruoyi.my.service.impl;
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.util.WxMaConfigHolder;
-import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -13,15 +12,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.domain.model.XcxLoginUser;
 import com.ruoyi.common.enums.DeviceType;
-import com.ruoyi.common.enums.LoginType;
 import com.ruoyi.common.enums.UserType;
-import com.ruoyi.common.exception.UtilException;
 import com.ruoyi.common.helper.DataBaseHelper;
 import com.ruoyi.common.helper.LoginHelper;
 import com.ruoyi.my.config.UrlConfig;
 import com.ruoyi.my.domain.DiyAccessoriesList;
 import com.ruoyi.my.domain.DiyLable;
-import com.ruoyi.my.domain.DiyUserAccessoriesList;
 import com.ruoyi.my.domain.WxUser;
 import com.ruoyi.my.domain.vo.LoginVo;
 import com.ruoyi.my.domain.vo.RecommendVo;
@@ -29,10 +25,7 @@ import com.ruoyi.my.mapper.DiyAccessoriesListMapper;
 import com.ruoyi.my.mapper.DiyLableMapper;
 import com.ruoyi.my.mapper.WxUserMapper;
 import com.ruoyi.my.service.WxService;
-import com.ruoyi.my.service.impl.DiyAccessoriesListServiceImpl.priceResult;
-import com.xxl.job.admin.controller.JobInfoController;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -45,15 +38,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
 public class WxServiceImpl implements WxService {
-
-    private static Logger logger = LoggerFactory.getLogger(JobInfoController.class);
 
     @Autowired
     private WxMaService wxMaService;
@@ -85,8 +75,6 @@ public class WxServiceImpl implements WxService {
 
         try {
             WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(code);
-            logger.debug(session.getSessionKey());
-            logger.debug(session.getOpenid());
             WxUser wxUser = wxUserMapper.selectOne(new QueryWrapper<WxUser>()
                 .lambda()
                 .eq(WxUser::getOpenId, session.getOpenid()));
