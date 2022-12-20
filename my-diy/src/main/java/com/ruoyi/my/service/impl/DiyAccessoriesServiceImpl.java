@@ -90,6 +90,7 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
         lqw.like(StringUtils.isNotBlank(bo.getName()), DiyAccessories::getName, bo.getName());
         lqw.eq(StringUtils.isNotBlank(bo.getNumber()), DiyAccessories::getNumber, bo.getNumber());
         lqw.eq(bo.getPrice() != null, DiyAccessories::getPrice, bo.getPrice());
+        lqw.eq(DiyAccessories::getDelFlag, "0");
         List<DiyCategory> categories = diyCategoryMapper.selectList(
             new LambdaQueryWrapper<DiyCategory>()
                 .select(DiyCategory::getId)
@@ -122,9 +123,12 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
                 if (Objects.equals(diyAccessories1.getDelFlag(), "0")) {
                     throw new RuntimeException(String.format("已经添加过配件编号为%s的配件", bo.getNumber()));
                 } else {
-                    diyAccessories1.setDelFlag(0);
+                    diyAccessories1.setDelFlag("0");
                     baseMapper.updateById(diyAccessories1);
                     bo.setId(diyAccessories1.getId());
+                    diyAccessoriesCategoryMapper.insert(
+                        DiyAccessoriesCategory.builder().AccessoriesId(bo.getId())
+                            .CategoryId(bo.getCategoryId()).build());
                     return updateByBo(bo);
                 }
             }
@@ -176,7 +180,9 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         ids.forEach(l -> {
-            baseMapper.deleteById(l);
+            DiyAccessories diyAccessories = baseMapper.selectById(l);
+            diyAccessories.setDelFlag("2");
+            baseMapper.updateById(diyAccessories);
             diyAccessoriesCategoryMapper.delete(
                 new QueryWrapper<DiyAccessoriesCategory>().lambda()
                     .eq(DiyAccessoriesCategory::getAccessoriesId, l));
