@@ -122,7 +122,7 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
                 if (Objects.equals(diyAccessories1.getDelFlag(), "0")) {
                     throw new RuntimeException(String.format("已经添加过配件编号为%s的配件", bo.getNumber()));
                 } else {
-                    diyAccessories1.setDelFlag("0");
+                    diyAccessories1.setDelFlag(0);
                     baseMapper.updateById(diyAccessories1);
                     bo.setId(diyAccessories1.getId());
                     return updateByBo(bo);
@@ -176,9 +176,7 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         ids.forEach(l -> {
-            DiyAccessories diyAccessories = baseMapper.selectById(l);
-            diyAccessories.setDelFlag("1");
-            baseMapper.updateById(diyAccessories);
+            baseMapper.deleteById(l);
             diyAccessoriesCategoryMapper.delete(
                 new QueryWrapper<DiyAccessoriesCategory>().lambda()
                     .eq(DiyAccessoriesCategory::getAccessoriesId, l));

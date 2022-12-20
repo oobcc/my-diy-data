@@ -425,6 +425,7 @@ public class DiyAccessoriesListServiceImpl implements IDiyAccessoriesListService
                 diyAccessories.setWarning("该商品可能被京东下架");
                 diyAccessoriesMapper.updateById(diyAccessories);
             } else if (Math.abs(newPrice.compareTo(diyAccessories.getPrice())) > 1e-5) {
+                diyAccessories.setWarning("");
                 diyAccessories.setPrice(newPrice);
                 diyAccessoriesMapper.updateById(diyAccessories);
             }
