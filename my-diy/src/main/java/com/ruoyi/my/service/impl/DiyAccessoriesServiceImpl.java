@@ -19,6 +19,7 @@ import com.ruoyi.my.domain.DiyAccessoriesCategory;
 import com.ruoyi.my.domain.DiyCategory;
 import com.ruoyi.my.mapper.DiyAccessoriesCategoryMapper;
 import com.ruoyi.my.mapper.DiyCategoryMapper;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -113,10 +114,19 @@ public class DiyAccessoriesServiceImpl implements IDiyAccessoriesService {
     @Override
     public Boolean insertByBo(DiyAccessoriesBo bo) {
         if (ObjectUtil.isNotNull(bo.getNumber())) {
-            if (baseMapper.selectList(
+            List<DiyAccessories> diyAccessories = baseMapper.selectList(
                 new LambdaQueryWrapper<DiyAccessories>().eq(DiyAccessories::getNumber,
-                    bo.getNumber())).size() > 0) {
-                throw new RuntimeException(String.format("已经添加过配件编号为%s的配件", bo.getNumber()));
+                    bo.getNumber()));
+            if (diyAccessories.size() > 0) {
+                DiyAccessories diyAccessories1 = diyAccessories.get(0);
+                if (Objects.equals(diyAccessories1.getDelFlag(), "0")) {
+                    throw new RuntimeException(String.format("已经添加过配件编号为%s的配件", bo.getNumber()));
+                } else {
+                    diyAccessories1.setDelFlag("0");
+                    baseMapper.updateById(diyAccessories1);
+                    bo.setId(diyAccessories1.getId());
+                    return updateByBo(bo);
+                }
             }
         }
         DiyAccessories add = BeanUtil.toBean(bo, DiyAccessories.class);
