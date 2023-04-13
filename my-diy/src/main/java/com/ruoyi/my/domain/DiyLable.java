@@ -22,7 +22,7 @@ public class DiyLable {
      * id
      */
     @TableId(value = "id")
-    private Long id;
+    private Integer id;
     /**
      * 标签名
      */

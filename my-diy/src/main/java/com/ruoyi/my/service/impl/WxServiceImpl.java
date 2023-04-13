@@ -115,13 +115,13 @@ public class WxServiceImpl implements WxService {
 
         ObjectMapper mapper = new ObjectMapper();
         String content = restTemplate.getForEntity(url, String.class).getBody();
-        System.out.println(content);
         R<String> lables = null;
         try {
             lables = mapper.readValue(
                 content,
                 mapper.getTypeFactory().constructParametricType(R.class, String.class));
-            return lables.getData().split(",");
+            String data = lables.getData();
+            return data.split(",");
         } catch (JsonProcessingException e) {
             return new String[0];
         }
@@ -134,7 +134,7 @@ public class WxServiceImpl implements WxService {
         if (labels == null || labels.length == 0) {
             return new RecommendVo(labels, null);
         }
-        List<Long> lablesId = new ArrayList<>();
+        List<Integer> lablesId = new ArrayList<>();
         for (String label : labels) {
             lablesId.addAll(
                 diyLableMapper.selectList(new LambdaQueryWrapper<DiyLable>()

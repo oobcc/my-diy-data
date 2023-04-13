@@ -48,5 +48,5 @@ public interface IDiyLableService {
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
 
-    Map<Long, DiyLable> getMap();
+    Map<Integer, DiyLable> getMap();
 }

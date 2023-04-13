@@ -24,7 +24,7 @@ public class DiyLableBo extends BaseEntity {
     /**
      * id
      */
-    private Long id;
+    private Integer id;
 
     /**
      * 标签名

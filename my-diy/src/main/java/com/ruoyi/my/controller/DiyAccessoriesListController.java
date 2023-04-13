@@ -1,6 +1,7 @@
 package com.ruoyi.my.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.my.domain.DiyAccessories;
 import com.ruoyi.my.domain.DiyAccessoriesList;
 import com.ruoyi.my.service.impl.DiyAccessoriesListServiceImpl.priceResult;
@@ -93,7 +94,9 @@ public class DiyAccessoriesListController extends BaseController {
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody DiyAccessoriesListBo bo) {
         bo.setType("0"); //设置为系统配置单
-        bo.setLabel(bo.getLabel().stream().distinct().collect(Collectors.toList()));
+        if (ObjectUtil.isNotNull(bo.getLabel())) {
+            bo.setLabel(bo.getLabel().stream().distinct().collect(Collectors.toList()));
+        }
         return toAjax(iDiyAccessoriesListService.insertByBo(bo));
     }
 

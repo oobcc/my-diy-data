@@ -24,7 +24,7 @@ public class DiyLableVo {
      * id
      */
     @ExcelProperty(value = "id")
-    private Long id;
+    private Integer id;
 
     /**
      * 标签名

@@ -114,7 +114,7 @@ public class DiyLableController extends BaseController {
      * 获取标签map
      */
     @GetMapping("/map")
-    public R<Map<Long, DiyLable>> getMap() {
+    public R<Map<Integer, DiyLable>> getMap() {
         return R.ok(iDiyLableService.getMap());
     }
 

@@ -23,6 +23,7 @@ public class WxMaConfiguration {
         List<WxConfig.Config> configs = this.wxConfig.getConfigs();
         if (configs == null) {
             log.info("配置为空");
+            return null;
         }
         WxMaService maService = new WxMaServiceImpl();
         maService.setMultiConfigs(

@@ -110,7 +110,7 @@ public class DiyLableServiceImpl implements IDiyLableService {
     }
 
     @Override
-    public Map<Long, DiyLable> getMap() {
+    public Map<Integer, DiyLable> getMap() {
         List<DiyLable> diyLables = baseMapper.selectList();
         return diyLables.stream()
             .collect(Collectors.toMap(DiyLable::getId, d -> d));
